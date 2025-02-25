@@ -1,0 +1,20 @@
+syntax = "proto3";
+package go.escape.ship.proto.orderapi;
+
+import "google/api/annotations.proto";
+
+option go_package = "github.com/escape-ship/gatewaysrv/proto/gen";
+
+
+message StringMessage {
+    string value = 1;
+}
+
+service YourService {
+    rpc Echo(StringMessage) returns (StringMessage) {
+        option (google.api.http) = {
+            post: "/v1/example/echo"
+            body: "*"
+        };
+    }
+}

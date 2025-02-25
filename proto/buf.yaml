@@ -1,0 +1,4 @@
+version: v2
+name: buf.build/escape-ship/gatewaysrv
+deps:
+  - buf.build/googleapis/googleapis
