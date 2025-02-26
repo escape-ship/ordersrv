@@ -1,5 +1,10 @@
 all: build
 
+init:
+	@echo "Initializing..."
+	@$(MAKE) sqlc_download
+	@$(MAKE) buf_download
+
 build:
 	@echo "Building..."
 	@go mod tidy
@@ -17,6 +22,14 @@ proto_gen:
 	buf dep update && \
 	buf generate
 
+sqlc_download:
+	@echo "Downloading sqlc..."
+	@go install github.com/kyleconroy/sqlc/cmd/sqlc@latest
+
+buf_download:
+	@echo "Downloading buf..."
+	@go install github.com/bufbuild/buf/cmd/buf@latest
+
 sqlc_gen:
 	@echo "Generating sqlc..."
 	@sqlc generate
@@ -24,7 +37,6 @@ sqlc_gen:
 run:
 	@echo "Running..."
 	@./bin/$(shell basename $(PWD))
-
 
 linter-golangci: ### check by golangci linter
 	golangci-lint run
