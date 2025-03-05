@@ -30,6 +30,16 @@ message GetAllResponseMessage {
     repeated OrderMessage orders = 1;
 }
 
+message UpdateRequestMessage {
+    string id = 1;
+    int32 order_status = 2;
+}
+
+message UpdateResponseMessage {
+    bool success = 1;
+    string message = 2;
+}
+
 service Order {
     rpc Insert(InsertRequestMessage) returns (InsertResponseMessage) {
         option (google.api.http) = {
@@ -40,6 +50,12 @@ service Order {
     rpc GetAll(GetAllRequestMessage) returns (GetAllResponseMessage) {
         option (google.api.http) = {
             get: "/v1/order"
+        };
+    }
+    rpc UpdateOrder (UpdateRequestMessage) returns (UpdateResponseMessage) {
+        option (google.api.http) = {
+            put: "/v1/order/update"
+            body: "*"
         };
     }
 }

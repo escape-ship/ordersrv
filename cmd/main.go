@@ -67,6 +67,21 @@ func (s *server) GetAll(ctx context.Context, _ *pb.GetAllRequestMessage) (*pb.Ge
 	return &pb.GetAllResponseMessage{Orders: orderList}, nil
 }
 
+func (s *server) UpdateOrder(ctx context.Context, in *pb.UpdateRequestMessage) (*pb.UpdateResponseMessage, error) {
+	_, err := s.queries.UpdateOrderStatus(
+		ctx,
+		mysql.UpdateOrderStatusParams{
+			ID:          in.GetId(),
+			OrderStatus: in.GetOrderStatus(),
+			Updated:     sql.NullTime{Time: time.Now(), Valid: true},
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+	return &pb.UpdateResponseMessage{Success: true, Message: "성공"}, nil
+}
+
 func main() {
 	lis, err := net.Listen("tcp", ":9090")
 	if err != nil {

@@ -76,3 +76,20 @@ func (q *Queries) GetAll(ctx context.Context) ([]EscapeOrder, error) {
 	}
 	return items, nil
 }
+
+const updateOrderStatus = `-- name: UpdateOrderStatus :execresult
+
+Update escape.orders
+SET order_status = ?, updated = ?
+WHERE id = ?
+`
+
+type UpdateOrderStatusParams struct {
+	OrderStatus int32        `json:"order_status"`
+	Updated     sql.NullTime `json:"updated"`
+	ID          string       `json:"id"`
+}
+
+func (q *Queries) UpdateOrderStatus(ctx context.Context, arg UpdateOrderStatusParams) (sql.Result, error) {
+	return q.db.ExecContext(ctx, updateOrderStatus, arg.OrderStatus, arg.Updated, arg.ID)
+}

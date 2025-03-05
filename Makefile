@@ -36,7 +36,7 @@ sqlc_gen:
 
 run:
 	@echo "Running..."
-	@./bin/$(shell basename $(PWD))
+	@./bin/ordersrv
 
 linter-golangci: ### check by golangci linter
 	golangci-lint run

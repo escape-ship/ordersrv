@@ -17,3 +17,9 @@ INSERT INTO escape.orders (
     updated
 )
 VALUES (?, ?, ?, ?);
+
+-- name: UpdateOrderStatus :execresult
+
+Update escape.orders
+SET order_status = ?, updated = ?
+WHERE id = ?;
