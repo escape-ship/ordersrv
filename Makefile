@@ -24,7 +24,7 @@ proto_gen:
 
 sqlc_download:
 	@echo "Downloading sqlc..."
-	@go install github.com/kyleconroy/sqlc/cmd/sqlc@latest
+	@go install ithub.com/sqlc-dev/sqlc/cmd/sqlc@latest
 
 buf_download:
 	@echo "Downloading buf..."
