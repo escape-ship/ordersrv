@@ -4,12 +4,16 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"log"
 	"net"
 	"time"
 
 	"github.com/escape-ship/ordersrv/internal/sql/mysql"
 	pb "github.com/escape-ship/ordersrv/proto/gen"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/golang-migrate/migrate/v4"
+	_ "github.com/golang-migrate/migrate/v4/database/mysql"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
@@ -73,7 +77,7 @@ func main() {
 		return
 	}
 
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true",
+	dsn := fmt.Sprintf("mysql://%s:%s@tcp(%s:%s)/%s?parseTime=true",
 		"testuser", "testpassword", "0.0.0.0", "3306", "escape")
 
 	fmt.Println("Connecting to DB:", dsn)
@@ -83,6 +87,16 @@ func main() {
 		fmt.Println(err)
 		return
 	}
+	defer db.Close()
+
+	m, err := migrate.New("file://db/migrations", dsn)
+	if err != nil {
+		log.Fatal("Migration init failed:", err)
+	}
+	if err := m.Up(); err != nil && err != migrate.ErrNoChange {
+		log.Fatal("Migration failed:", err)
+	}
+	fmt.Println("Database migrated successfully!")
 
 	queries := mysql.New(db)
 
@@ -91,6 +105,8 @@ func main() {
 	pb.RegisterOrderServer(s, &server{queries: queries})
 
 	reflection.Register(s)
+
+	fmt.Println("Serving ordersrv on http://0.0.0.0:8081")
 
 	if err := s.Serve(lis); err != nil {
 		return

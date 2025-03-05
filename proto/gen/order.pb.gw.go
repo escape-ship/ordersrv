@@ -64,6 +64,7 @@ func request_Order_GetAll_0(ctx context.Context, marshaler runtime.Marshaler, cl
 		protoReq GetAllRequestMessage
 		metadata runtime.ServerMetadata
 	)
+	io.Copy(io.Discard, req.Body)
 	msg, err := client.GetAll(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 }

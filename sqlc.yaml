@@ -1,6 +1,6 @@
 version: "2"
 sql: 
-  - schema: "db/migrations/000001_init_orders.sql"
+  - schema: "db/migrations/000001_init_orders.up.sql"
     queries: "internal/sql/query.sql"
     engine: "mysql"
     gen:
