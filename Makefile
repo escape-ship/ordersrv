@@ -2,8 +2,8 @@ all: build
 
 init:
 	@echo "Initializing..."
-	@$(MAKE) sqlc_download
-	@$(MAKE) buf_download
+	@$(MAKE) tool_download
+	@$(MAKE) build
 
 build:
 	@echo "Building..."
@@ -22,17 +22,29 @@ proto_gen:
 	buf dep update && \
 	buf generate
 
+sqlc_gen:
+	@echo "Generating sqlc..."
+	@sqlc generate
+
+tool_download:
+	$(MAKE) protoc_download
+	$(MAKE) buf_download
+	$(MAKE) sqlc_download
+
+protoc_download:
+	@echo "Downloading protoc..."
+	@go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway@latest
+	@go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2@latest
+	@go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+	@go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+
 sqlc_download:
 	@echo "Downloading sqlc..."
-	@go install ithub.com/sqlc-dev/sqlc/cmd/sqlc@latest
+	@go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest
 
 buf_download:
 	@echo "Downloading buf..."
 	@go install github.com/bufbuild/buf/cmd/buf@latest
-
-sqlc_gen:
-	@echo "Generating sqlc..."
-	@sqlc generate
 
 run:
 	@echo "Running..."
@@ -41,3 +53,6 @@ run:
 linter-golangci: ### check by golangci linter
 	golangci-lint run
 .PHONY: linter-golangci
+
+clean:
+	rm -f bin/$(shell basename $(PWD))
