@@ -1,14 +1,16 @@
 START TRANSACTION;
 
-CREATE SCHEMA IF NOT EXISTS escape;
+CREATE SCHEMA IF NOT EXISTS orders;
 
-CREATE TABLE escape.orders (
-    id CHAR(36) NOT NULL DEFAULT (UUID()),
-    order_source INT NOT NULL,
-    loyalty_member_id CHAR(36) NOT NULL,
-    order_status INT NOT NULL,
-    updated TIMESTAMP NULL,
-    CONSTRAINT pk_orders PRIMARY KEY (id)
-);
+CREATE TABLE orders.order (
+    id UUID PRIMARY KEY,
+    user_id UUID NOT NULL,
+    user_email 
+    product_id UUID NOT NULL,
+    product_name VARCHAR(255) UNIQUE NOT NULL,
+    product_price  BIGINT NOT NULL,
+    product_imageUrl VARCHAR NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+);  
 
 COMMIT;

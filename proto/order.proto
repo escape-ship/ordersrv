@@ -6,10 +6,15 @@ import "google/api/annotations.proto";
 option go_package = "github.com/escape-ship/ordersrv/proto/gen";
 
 
-message InsertRequestMessage {
-    int32 order_source = 1;
-    string loyalty_member_id = 2;
-    int32 order_status = 3;
+message Order {
+    uint64 id = 1;
+    uint64 user_id = 2;
+    uint64 product_id = 3;
+    string user_email = 4;
+    string product_name = 5;
+    double product_price = 6;
+    string product_imageUrl = 7;
+    string create_at = 
 }
 
 message InsertResponseMessage {

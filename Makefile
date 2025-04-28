@@ -24,7 +24,8 @@ proto_gen:
 
 sqlc_gen:
 	@echo "Generating sqlc..."
-	@sqlc generate
+	@cd internal/infra/sqlc && \
+	sqlc generate
 
 tool_download:
 	$(MAKE) protoc_download
