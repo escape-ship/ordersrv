@@ -2,16 +2,35 @@
 // versions:
 //   sqlc v1.28.0
 
-package mysql
+package postgresql
 
 import (
 	"database/sql"
+	"time"
+
+	"github.com/google/uuid"
 )
 
-type EscapeOrder struct {
-	ID              string       `json:"id"`
-	OrderSource     int32        `json:"order_source"`
-	LoyaltyMemberID string       `json:"loyalty_member_id"`
-	OrderStatus     int32        `json:"order_status"`
-	Updated         sql.NullTime `json:"updated"`
+type OrdersOrder struct {
+	ID              uuid.UUID      `json:"id"`
+	UserID          uuid.UUID      `json:"user_id"`
+	OrderNumber     string         `json:"order_number"`
+	Status          string         `json:"status"`
+	TotalPrice      int64          `json:"total_price"`
+	Quantity        int32          `json:"quantity"`
+	PaymentMethod   string         `json:"payment_method"`
+	ShippingFee     int32          `json:"shipping_fee"`
+	ShippingAddress string         `json:"shipping_address"`
+	OrderedAt       time.Time      `json:"ordered_at"`
+	PaidAt          sql.NullTime   `json:"paid_at"`
+	Memo            sql.NullString `json:"memo"`
+}
+
+type OrdersOrderItem struct {
+	ID           uuid.UUID `json:"id"`
+	OrderID      uuid.UUID `json:"order_id"`
+	ProductID    uuid.UUID `json:"product_id"`
+	ProductName  string    `json:"product_name"`
+	ProductPrice int64     `json:"product_price"`
+	Quantity     int32     `json:"quantity"`
 }

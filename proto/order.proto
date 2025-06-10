@@ -5,44 +5,70 @@ import "google/api/annotations.proto";
 
 option go_package = "github.com/escape-ship/ordersrv/proto/gen";
 
-
 message Order {
-    uint64 id = 1;
-    uint64 user_id = 2;
-    uint64 product_id = 3;
-    string user_email = 4;
-    string product_name = 5;
-    double product_price = 6;
-    string product_imageUrl = 7;
-    string create_at = 
-}
-
-message InsertResponseMessage {
-    int64 id = 1;
-}
-
-message GetAllRequestMessage {}
-
-message OrderMessage {
     string id = 1;
-    int32 order_source = 2;
-    string loyalty_member_id = 3;
-    int32 order_status = 4;
-    string updated = 5;
+    string user_id = 2;
+    string order_number = 3;
+    string status = 4;
+    int64 total_price = 5;
+    int32 quantity = 6;
+    string payment_method = 7;
+    int32 shipping_fee = 8;
+    string shipping_address = 9;
+    string ordered_at = 10;
+    string paid_at = 11;
+    string memo = 12;
+    repeated OrderItem items = 13;
 }
 
-message GetAllResponseMessage {
-    repeated OrderMessage orders = 1;
+message OrderItem {
+    string id = 1;
+    string order_id = 2;
+    string product_id = 3;
+    string product_name = 4;
+    int64 product_price = 5;
+    int32 quantity = 6;
 }
 
-service Order {
-    rpc Insert(InsertRequestMessage) returns (InsertResponseMessage) {
+message InsertOrderRequest {
+    string user_id = 1;
+    string order_number = 2;
+    string status = 3;
+    int64 total_price = 4;
+    int32 quantity = 5;
+    string payment_method = 6;
+    int32 shipping_fee = 7;
+    string shipping_address = 8;
+    string paid_at = 9;
+    string memo = 10;
+    repeated InsertOrderItemRequest items = 11;
+}
+
+message InsertOrderItemRequest {
+    string product_id = 1;
+    string product_name = 2;
+    int64 product_price = 3;
+    int32 quantity = 4;
+}
+
+message InsertOrderResponse {
+    string id = 1;
+}
+
+message GetAllOrdersRequest {}
+
+message GetAllOrdersResponse {
+    repeated Order orders = 1;
+}
+
+service OrderService {
+    rpc InsertOrder(InsertOrderRequest) returns (InsertOrderResponse) {
         option (google.api.http) = {
             post: "/v1/order/insert"
             body: "*"
         };
     }
-    rpc GetAll(GetAllRequestMessage) returns (GetAllResponseMessage) {
+    rpc GetAllOrders(GetAllOrdersRequest) returns (GetAllOrdersResponse) {
         option (google.api.http) = {
             get: "/v1/order"
         };

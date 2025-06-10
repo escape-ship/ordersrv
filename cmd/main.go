@@ -5,23 +5,25 @@ import (
 	"fmt"
 	"net"
 
-	pb "github.com/escape-ship/ordersrv/proto/gen"
+	"github.com/escape-ship/ordersrv/internal/app"
+	"github.com/escape-ship/ordersrv/internal/infra/sqlc/postgresql"
+	"github.com/escape-ship/ordersrv/internal/service"
+	"github.com/escape-ship/ordersrv/pkg/kafka"
 	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/golang-migrate/migrate/v4/database/mysql"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/reflection"
 )
 
 func main() {
+	// Listener 생성
 	lis, err := net.Listen("tcp", ":9093")
 	if err != nil {
+		fmt.Println("failed to listen:", err)
 		return
 	}
 
 	dsn := fmt.Sprintf("mysql://%s:%s@tcp(%s:%s)/%s?parseTime=true",
 		"testuser", "testpasswd", "0.0.0.0", "5432", "escape")
-
 	fmt.Println("Connecting to DB:", dsn)
 
 	db, err := sql.Open("pgx", dsn)
@@ -31,26 +33,16 @@ func main() {
 	}
 	defer db.Close()
 
-	// m, err := migrate.New("file://db/migrations", dsn)
-	// if err != nil {
-	// 	log.Fatal("Migration init failed:", err)
-	// }
-	// if err := m.Up(); err != nil && err != migrate.ErrNoChange {
-	// 	log.Fatal("Migration failed:", err)
-	// }
-	// fmt.Println("Database migrated successfully!")
-
 	queries := postgresql.New(db)
+	orderController := service.NewOrderController(db, queries)
 
-	s := grpc.NewServer()
+	brokers := []string{"localhost:9092"}
+	topic := "order-events"
+	groupID := "order-group"
+	engine := kafka.NewEngine(brokers, topic, groupID)
+	consumer := engine.Consumer()
 
-	pb.RegisterOrderServer(s, &server{queries: queries})
-
-	reflection.Register(s)
-
-	fmt.Println("Serving ordersrv on http://0.0.0.0:8081")
-
-	if err := s.Serve(lis); err != nil {
-		return
-	}
+	// App 인스턴스 생성 및 실행
+	application := app.NewApp(db, lis, orderController, engine, consumer)
+	application.Run()
 }

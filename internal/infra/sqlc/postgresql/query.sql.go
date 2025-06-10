@@ -3,66 +3,41 @@
 //   sqlc v1.28.0
 // source: query.sql
 
-package mysql
+package postgresql
 
 import (
 	"context"
 	"database/sql"
+
+	"github.com/google/uuid"
 )
 
-const createOrder = `-- name: CreateOrder :execresult
-
-INSERT INTO escape.orders (
-    order_source,
-    loyalty_member_id,
-    order_status,
-    updated
-)
-VALUES (?, ?, ?, ?)
+const getAllOrders = `-- name: GetAllOrders :many
+SELECT id, user_id, order_number, status, total_price, quantity, payment_method, shipping_fee, shipping_address, ordered_at, paid_at, memo FROM orders.order
 `
 
-type CreateOrderParams struct {
-	OrderSource     int32        `json:"order_source"`
-	LoyaltyMemberID string       `json:"loyalty_member_id"`
-	OrderStatus     int32        `json:"order_status"`
-	Updated         sql.NullTime `json:"updated"`
-}
-
-func (q *Queries) CreateOrder(ctx context.Context, arg CreateOrderParams) (sql.Result, error) {
-	return q.db.ExecContext(ctx, createOrder,
-		arg.OrderSource,
-		arg.LoyaltyMemberID,
-		arg.OrderStatus,
-		arg.Updated,
-	)
-}
-
-const getAll = `-- name: GetAll :many
-
-SELECT
-    id,
-    order_source,
-    loyalty_member_id,
-    order_status,
-    updated
-FROM escape.orders
-`
-
-func (q *Queries) GetAll(ctx context.Context) ([]EscapeOrder, error) {
-	rows, err := q.db.QueryContext(ctx, getAll)
+func (q *Queries) GetAllOrders(ctx context.Context) ([]OrdersOrder, error) {
+	rows, err := q.db.QueryContext(ctx, getAllOrders)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []EscapeOrder
+	var items []OrdersOrder
 	for rows.Next() {
-		var i EscapeOrder
+		var i OrdersOrder
 		if err := rows.Scan(
 			&i.ID,
-			&i.OrderSource,
-			&i.LoyaltyMemberID,
-			&i.OrderStatus,
-			&i.Updated,
+			&i.UserID,
+			&i.OrderNumber,
+			&i.Status,
+			&i.TotalPrice,
+			&i.Quantity,
+			&i.PaymentMethod,
+			&i.ShippingFee,
+			&i.ShippingAddress,
+			&i.OrderedAt,
+			&i.PaidAt,
+			&i.Memo,
 		); err != nil {
 			return nil, err
 		}
@@ -75,4 +50,134 @@ func (q *Queries) GetAll(ctx context.Context) ([]EscapeOrder, error) {
 		return nil, err
 	}
 	return items, nil
+}
+
+const getOrderItems = `-- name: GetOrderItems :many
+SELECT id, order_id, product_id, product_name, product_price, quantity FROM orders.order_items WHERE order_id = $1
+`
+
+func (q *Queries) GetOrderItems(ctx context.Context, orderID uuid.UUID) ([]OrdersOrderItem, error) {
+	rows, err := q.db.QueryContext(ctx, getOrderItems, orderID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []OrdersOrderItem
+	for rows.Next() {
+		var i OrdersOrderItem
+		if err := rows.Scan(
+			&i.ID,
+			&i.OrderID,
+			&i.ProductID,
+			&i.ProductName,
+			&i.ProductPrice,
+			&i.Quantity,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getOrderWithItems = `-- name: GetOrderWithItems :one
+SELECT id, user_id, order_number, status, total_price, quantity, payment_method, shipping_fee, shipping_address, ordered_at, paid_at, memo FROM orders.order WHERE id = $1
+`
+
+func (q *Queries) GetOrderWithItems(ctx context.Context, id uuid.UUID) (OrdersOrder, error) {
+	row := q.db.QueryRowContext(ctx, getOrderWithItems, id)
+	var i OrdersOrder
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.OrderNumber,
+		&i.Status,
+		&i.TotalPrice,
+		&i.Quantity,
+		&i.PaymentMethod,
+		&i.ShippingFee,
+		&i.ShippingAddress,
+		&i.OrderedAt,
+		&i.PaidAt,
+		&i.Memo,
+	)
+	return i, err
+}
+
+const insertOrder = `-- name: InsertOrder :one
+INSERT INTO orders.order (
+    id, user_id, order_number, status, total_price, quantity, payment_method, shipping_fee, shipping_address, ordered_at, paid_at, memo
+) VALUES (
+    $1, $2, $3, $4, $5, $6, $7, $8, $9, COALESCE($10, CURRENT_TIMESTAMP), $11, $12
+) RETURNING id
+`
+
+type InsertOrderParams struct {
+	ID              uuid.UUID      `json:"id"`
+	UserID          uuid.UUID      `json:"user_id"`
+	OrderNumber     string         `json:"order_number"`
+	Status          string         `json:"status"`
+	TotalPrice      int64          `json:"total_price"`
+	Quantity        int32          `json:"quantity"`
+	PaymentMethod   string         `json:"payment_method"`
+	ShippingFee     int32          `json:"shipping_fee"`
+	ShippingAddress string         `json:"shipping_address"`
+	Column10        interface{}    `json:"column_10"`
+	PaidAt          sql.NullTime   `json:"paid_at"`
+	Memo            sql.NullString `json:"memo"`
+}
+
+func (q *Queries) InsertOrder(ctx context.Context, arg InsertOrderParams) (uuid.UUID, error) {
+	row := q.db.QueryRowContext(ctx, insertOrder,
+		arg.ID,
+		arg.UserID,
+		arg.OrderNumber,
+		arg.Status,
+		arg.TotalPrice,
+		arg.Quantity,
+		arg.PaymentMethod,
+		arg.ShippingFee,
+		arg.ShippingAddress,
+		arg.Column10,
+		arg.PaidAt,
+		arg.Memo,
+	)
+	var id uuid.UUID
+	err := row.Scan(&id)
+	return id, err
+}
+
+const insertOrderItem = `-- name: InsertOrderItem :exec
+INSERT INTO orders.order_items (
+    id, order_id, product_id, product_name, product_price, quantity
+) VALUES (
+    $1, $2, $3, $4, $5, $6
+)
+`
+
+type InsertOrderItemParams struct {
+	ID           uuid.UUID `json:"id"`
+	OrderID      uuid.UUID `json:"order_id"`
+	ProductID    uuid.UUID `json:"product_id"`
+	ProductName  string    `json:"product_name"`
+	ProductPrice int64     `json:"product_price"`
+	Quantity     int32     `json:"quantity"`
+}
+
+func (q *Queries) InsertOrderItem(ctx context.Context, arg InsertOrderItemParams) error {
+	_, err := q.db.ExecContext(ctx, insertOrderItem,
+		arg.ID,
+		arg.OrderID,
+		arg.ProductID,
+		arg.ProductName,
+		arg.ProductPrice,
+		arg.Quantity,
+	)
+	return err
 }

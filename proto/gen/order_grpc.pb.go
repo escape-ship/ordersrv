@@ -19,139 +19,139 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Order_Insert_FullMethodName = "/go.escape.ship.proto.orderapi.Order/Insert"
-	Order_GetAll_FullMethodName = "/go.escape.ship.proto.orderapi.Order/GetAll"
+	OrderService_InsertOrder_FullMethodName  = "/go.escape.ship.proto.orderapi.OrderService/InsertOrder"
+	OrderService_GetAllOrders_FullMethodName = "/go.escape.ship.proto.orderapi.OrderService/GetAllOrders"
 )
 
-// OrderClient is the client API for Order service.
+// OrderServiceClient is the client API for OrderService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type OrderClient interface {
-	Insert(ctx context.Context, in *InsertRequestMessage, opts ...grpc.CallOption) (*InsertResponseMessage, error)
-	GetAll(ctx context.Context, in *GetAllRequestMessage, opts ...grpc.CallOption) (*GetAllResponseMessage, error)
+type OrderServiceClient interface {
+	InsertOrder(ctx context.Context, in *InsertOrderRequest, opts ...grpc.CallOption) (*InsertOrderResponse, error)
+	GetAllOrders(ctx context.Context, in *GetAllOrdersRequest, opts ...grpc.CallOption) (*GetAllOrdersResponse, error)
 }
 
-type orderClient struct {
+type orderServiceClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewOrderClient(cc grpc.ClientConnInterface) OrderClient {
-	return &orderClient{cc}
+func NewOrderServiceClient(cc grpc.ClientConnInterface) OrderServiceClient {
+	return &orderServiceClient{cc}
 }
 
-func (c *orderClient) Insert(ctx context.Context, in *InsertRequestMessage, opts ...grpc.CallOption) (*InsertResponseMessage, error) {
+func (c *orderServiceClient) InsertOrder(ctx context.Context, in *InsertOrderRequest, opts ...grpc.CallOption) (*InsertOrderResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(InsertResponseMessage)
-	err := c.cc.Invoke(ctx, Order_Insert_FullMethodName, in, out, cOpts...)
+	out := new(InsertOrderResponse)
+	err := c.cc.Invoke(ctx, OrderService_InsertOrder_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *orderClient) GetAll(ctx context.Context, in *GetAllRequestMessage, opts ...grpc.CallOption) (*GetAllResponseMessage, error) {
+func (c *orderServiceClient) GetAllOrders(ctx context.Context, in *GetAllOrdersRequest, opts ...grpc.CallOption) (*GetAllOrdersResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(GetAllResponseMessage)
-	err := c.cc.Invoke(ctx, Order_GetAll_FullMethodName, in, out, cOpts...)
+	out := new(GetAllOrdersResponse)
+	err := c.cc.Invoke(ctx, OrderService_GetAllOrders_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// OrderServer is the server API for Order service.
-// All implementations must embed UnimplementedOrderServer
+// OrderServiceServer is the server API for OrderService service.
+// All implementations must embed UnimplementedOrderServiceServer
 // for forward compatibility.
-type OrderServer interface {
-	Insert(context.Context, *InsertRequestMessage) (*InsertResponseMessage, error)
-	GetAll(context.Context, *GetAllRequestMessage) (*GetAllResponseMessage, error)
-	mustEmbedUnimplementedOrderServer()
+type OrderServiceServer interface {
+	InsertOrder(context.Context, *InsertOrderRequest) (*InsertOrderResponse, error)
+	GetAllOrders(context.Context, *GetAllOrdersRequest) (*GetAllOrdersResponse, error)
+	mustEmbedUnimplementedOrderServiceServer()
 }
 
-// UnimplementedOrderServer must be embedded to have
+// UnimplementedOrderServiceServer must be embedded to have
 // forward compatible implementations.
 //
 // NOTE: this should be embedded by value instead of pointer to avoid a nil
 // pointer dereference when methods are called.
-type UnimplementedOrderServer struct{}
+type UnimplementedOrderServiceServer struct{}
 
-func (UnimplementedOrderServer) Insert(context.Context, *InsertRequestMessage) (*InsertResponseMessage, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Insert not implemented")
+func (UnimplementedOrderServiceServer) InsertOrder(context.Context, *InsertOrderRequest) (*InsertOrderResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method InsertOrder not implemented")
 }
-func (UnimplementedOrderServer) GetAll(context.Context, *GetAllRequestMessage) (*GetAllResponseMessage, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetAll not implemented")
+func (UnimplementedOrderServiceServer) GetAllOrders(context.Context, *GetAllOrdersRequest) (*GetAllOrdersResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAllOrders not implemented")
 }
-func (UnimplementedOrderServer) mustEmbedUnimplementedOrderServer() {}
-func (UnimplementedOrderServer) testEmbeddedByValue()               {}
+func (UnimplementedOrderServiceServer) mustEmbedUnimplementedOrderServiceServer() {}
+func (UnimplementedOrderServiceServer) testEmbeddedByValue()                      {}
 
-// UnsafeOrderServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to OrderServer will
+// UnsafeOrderServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to OrderServiceServer will
 // result in compilation errors.
-type UnsafeOrderServer interface {
-	mustEmbedUnimplementedOrderServer()
+type UnsafeOrderServiceServer interface {
+	mustEmbedUnimplementedOrderServiceServer()
 }
 
-func RegisterOrderServer(s grpc.ServiceRegistrar, srv OrderServer) {
-	// If the following call pancis, it indicates UnimplementedOrderServer was
+func RegisterOrderServiceServer(s grpc.ServiceRegistrar, srv OrderServiceServer) {
+	// If the following call pancis, it indicates UnimplementedOrderServiceServer was
 	// embedded by pointer and is nil.  This will cause panics if an
 	// unimplemented method is ever invoked, so we test this at initialization
 	// time to prevent it from happening at runtime later due to I/O.
 	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
 		t.testEmbeddedByValue()
 	}
-	s.RegisterService(&Order_ServiceDesc, srv)
+	s.RegisterService(&OrderService_ServiceDesc, srv)
 }
 
-func _Order_Insert_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(InsertRequestMessage)
+func _OrderService_InsertOrder_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(InsertOrderRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(OrderServer).Insert(ctx, in)
+		return srv.(OrderServiceServer).InsertOrder(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Order_Insert_FullMethodName,
+		FullMethod: OrderService_InsertOrder_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(OrderServer).Insert(ctx, req.(*InsertRequestMessage))
+		return srv.(OrderServiceServer).InsertOrder(ctx, req.(*InsertOrderRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Order_GetAll_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetAllRequestMessage)
+func _OrderService_GetAllOrders_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetAllOrdersRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(OrderServer).GetAll(ctx, in)
+		return srv.(OrderServiceServer).GetAllOrders(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Order_GetAll_FullMethodName,
+		FullMethod: OrderService_GetAllOrders_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(OrderServer).GetAll(ctx, req.(*GetAllRequestMessage))
+		return srv.(OrderServiceServer).GetAllOrders(ctx, req.(*GetAllOrdersRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// Order_ServiceDesc is the grpc.ServiceDesc for Order service.
+// OrderService_ServiceDesc is the grpc.ServiceDesc for OrderService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var Order_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "go.escape.ship.proto.orderapi.Order",
-	HandlerType: (*OrderServer)(nil),
+var OrderService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "go.escape.ship.proto.orderapi.OrderService",
+	HandlerType: (*OrderServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "Insert",
-			Handler:    _Order_Insert_Handler,
+			MethodName: "InsertOrder",
+			Handler:    _OrderService_InsertOrder_Handler,
 		},
 		{
-			MethodName: "GetAll",
-			Handler:    _Order_GetAll_Handler,
+			MethodName: "GetAllOrders",
+			Handler:    _OrderService_GetAllOrders_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
