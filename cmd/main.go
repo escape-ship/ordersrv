@@ -9,9 +9,8 @@ import (
 	"github.com/escape-ship/ordersrv/internal/infra/sqlc/postgresql"
 	"github.com/escape-ship/ordersrv/internal/service"
 	"github.com/escape-ship/ordersrv/pkg/kafka"
-	_ "github.com/go-sql-driver/mysql"
-	_ "github.com/golang-migrate/migrate/v4/database/mysql"
-	_ "github.com/golang-migrate/migrate/v4/source/file"
+
+	_ "github.com/jackc/pgx/v5/stdlib" // pgx 드라이버 등록
 )
 
 func main() {
@@ -22,8 +21,8 @@ func main() {
 		return
 	}
 
-	dsn := fmt.Sprintf("mysql://%s:%s@tcp(%s:%s)/%s?parseTime=true",
-		"testuser", "testpasswd", "0.0.0.0", "5432", "escape")
+	dsn := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable",
+		"testuser", "testpassword", "0.0.0.0", "5432", "escape")
 	fmt.Println("Connecting to DB:", dsn)
 
 	db, err := sql.Open("pgx", dsn)

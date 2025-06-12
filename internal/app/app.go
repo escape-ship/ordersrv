@@ -9,6 +9,8 @@ import (
 	"os/signal"
 	"syscall"
 
+	pb "github.com/escape-ship/ordersrv/proto/gen"
+
 	"github.com/escape-ship/ordersrv/internal/service"
 	"github.com/escape-ship/ordersrv/pkg/kafka"
 	"google.golang.org/grpc"
@@ -28,7 +30,7 @@ type App struct {
 func NewApp(db *sql.DB, listener net.Listener, orderController *service.OrderController, kafkaEngine kafka.Engine, kafkaConsumer kafka.Consumer) *App {
 	grpcServer := grpc.NewServer()
 	// gRPC 서비스 등록
-	// pb.RegisterOrderServiceServer(grpcServer, orderController) // <- main.go에서 이미 등록했다면 주석처리
+	pb.RegisterOrderServiceServer(grpcServer, orderController) // <- main.go에서 이미 등록했다면 주석처리
 	reflection.Register(grpcServer)
 	return &App{
 		GRPCServer:      grpcServer,

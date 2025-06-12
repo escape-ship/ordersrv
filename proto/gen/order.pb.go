@@ -25,7 +25,7 @@ const (
 type Order struct {
 	state           protoimpl.MessageState `protogen:"open.v1"`
 	Id              string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	UserId          string                 `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	UserId          int64                  `protobuf:"varint,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	OrderNumber     string                 `protobuf:"bytes,3,opt,name=order_number,json=orderNumber,proto3" json:"order_number,omitempty"`
 	Status          string                 `protobuf:"bytes,4,opt,name=status,proto3" json:"status,omitempty"`
 	TotalPrice      int64                  `protobuf:"varint,5,opt,name=total_price,json=totalPrice,proto3" json:"total_price,omitempty"`
@@ -78,11 +78,11 @@ func (x *Order) GetId() string {
 	return ""
 }
 
-func (x *Order) GetUserId() string {
+func (x *Order) GetUserId() int64 {
 	if x != nil {
 		return x.UserId
 	}
-	return ""
+	return 0
 }
 
 func (x *Order) GetOrderNumber() string {
@@ -248,7 +248,7 @@ func (x *OrderItem) GetQuantity() int32 {
 
 type InsertOrderRequest struct {
 	state           protoimpl.MessageState    `protogen:"open.v1"`
-	UserId          string                    `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	UserId          int64                     `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	OrderNumber     string                    `protobuf:"bytes,2,opt,name=order_number,json=orderNumber,proto3" json:"order_number,omitempty"`
 	Status          string                    `protobuf:"bytes,3,opt,name=status,proto3" json:"status,omitempty"`
 	TotalPrice      int64                     `protobuf:"varint,4,opt,name=total_price,json=totalPrice,proto3" json:"total_price,omitempty"`
@@ -293,11 +293,11 @@ func (*InsertOrderRequest) Descriptor() ([]byte, []int) {
 	return file_order_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *InsertOrderRequest) GetUserId() string {
+func (x *InsertOrderRequest) GetUserId() int64 {
 	if x != nil {
 		return x.UserId
 	}
-	return ""
+	return 0
 }
 
 func (x *InsertOrderRequest) GetOrderNumber() string {
@@ -569,7 +569,7 @@ const file_order_proto_rawDesc = "" +
 	"\vorder.proto\x12\x1dgo.escape.ship.proto.orderapi\x1a\x1cgoogle/api/annotations.proto\"\xa9\x03\n" +
 	"\x05Order\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x17\n" +
-	"\auser_id\x18\x02 \x01(\tR\x06userId\x12!\n" +
+	"\auser_id\x18\x02 \x01(\x03R\x06userId\x12!\n" +
 	"\forder_number\x18\x03 \x01(\tR\vorderNumber\x12\x16\n" +
 	"\x06status\x18\x04 \x01(\tR\x06status\x12\x1f\n" +
 	"\vtotal_price\x18\x05 \x01(\x03R\n" +
@@ -593,7 +593,7 @@ const file_order_proto_rawDesc = "" +
 	"\rproduct_price\x18\x05 \x01(\x03R\fproductPrice\x12\x1a\n" +
 	"\bquantity\x18\x06 \x01(\x05R\bquantity\"\x94\x03\n" +
 	"\x12InsertOrderRequest\x12\x17\n" +
-	"\auser_id\x18\x01 \x01(\tR\x06userId\x12!\n" +
+	"\auser_id\x18\x01 \x01(\x03R\x06userId\x12!\n" +
 	"\forder_number\x18\x02 \x01(\tR\vorderNumber\x12\x16\n" +
 	"\x06status\x18\x03 \x01(\tR\x06status\x12\x1f\n" +
 	"\vtotal_price\x18\x04 \x01(\x03R\n" +

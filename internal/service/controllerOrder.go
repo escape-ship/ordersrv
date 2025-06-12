@@ -37,7 +37,7 @@ func (s *OrderController) InsertOrder(ctx context.Context, req *pb.InsertOrderRe
 	orderID := uuid.New()
 	orderParams := postgresql.InsertOrderParams{
 		ID:              orderID,
-		UserID:          uuid.MustParse(req.UserId),
+		UserID:          req.UserId,
 		OrderNumber:     req.OrderNumber,
 		Status:          req.Status,
 		TotalPrice:      req.TotalPrice,
@@ -95,7 +95,7 @@ func (s *OrderController) GetAllOrders(ctx context.Context, req *pb.GetAllOrders
 		}
 		respOrders = append(respOrders, &pb.Order{
 			Id:              o.ID.String(),
-			UserId:          o.UserID.String(),
+			UserId:          o.UserID,
 			OrderNumber:     o.OrderNumber,
 			Status:          o.Status,
 			TotalPrice:      o.TotalPrice,

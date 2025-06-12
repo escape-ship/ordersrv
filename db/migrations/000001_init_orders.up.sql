@@ -4,7 +4,7 @@ CREATE SCHEMA IF NOT EXISTS orders;
 
 CREATE TABLE orders.order (
     id UUID PRIMARY KEY,
-    user_id UUID NOT NULL,
+    user_id BIGSERIAL NOT NULL,
     order_number VARCHAR NOT NULL,
     status TEXT NOT NULL,
     total_price BIGINT NOT NULL,

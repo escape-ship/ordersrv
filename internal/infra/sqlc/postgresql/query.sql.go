@@ -120,7 +120,7 @@ INSERT INTO orders.order (
 
 type InsertOrderParams struct {
 	ID              uuid.UUID      `json:"id"`
-	UserID          uuid.UUID      `json:"user_id"`
+	UserID          int64          `json:"user_id"`
 	OrderNumber     string         `json:"order_number"`
 	Status          string         `json:"status"`
 	TotalPrice      int64          `json:"total_price"`
