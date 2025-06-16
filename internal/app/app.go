@@ -23,6 +23,7 @@ type App struct {
 	KafkaConsumer kafka.Consumer
 	pg            postgres.DBEngine
 	Listener      net.Listener
+	OrderService  *service.OrderController
 }
 
 // App 생성자
@@ -32,6 +33,7 @@ func NewApp(pg postgres.DBEngine, listener net.Listener, kafkaEngine kafka.Engin
 		KafkaConsumer: kafkaConsumer,
 		pg:            pg,
 		Listener:      listener,
+		OrderService:  service.NewOrderController(pg, kafkaEngine),
 	}
 }
 
@@ -51,6 +53,10 @@ func (a *App) Run() {
 		case "kakao-approve":
 			// 인벤토리 감소 함수 호출
 			log.Println("Processing kakao-approve message")
+			err := a.OrderService.UpdateOrderStatus(context.Background(), string(value), service.OrderStatePaid)
+			if err != nil {
+				log.Printf("Error updating order status: %v", err)
+			}
 		default:
 		}
 	}

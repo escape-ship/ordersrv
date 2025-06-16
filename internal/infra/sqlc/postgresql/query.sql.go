@@ -181,3 +181,20 @@ func (q *Queries) InsertOrderItem(ctx context.Context, arg InsertOrderItemParams
 	)
 	return err
 }
+
+const updateOrderStatus = `-- name: UpdateOrderStatus :exec
+UPDATE orders.order
+SET status = $2,
+    updated_at = NOW()
+WHERE id = $1
+`
+
+type UpdateOrderStatusParams struct {
+	ID     uuid.UUID `json:"id"`
+	Status string    `json:"status"`
+}
+
+func (q *Queries) UpdateOrderStatus(ctx context.Context, arg UpdateOrderStatusParams) error {
+	_, err := q.db.ExecContext(ctx, updateOrderStatus, arg.ID, arg.Status)
+	return err
+}

@@ -36,7 +36,7 @@ func main() {
 	}
 
 	brokers := []string{"localhost:9092"}
-	topic := "order-events"
+	topic := "payments"
 	groupID := "order-group"
 	engine := kafka.NewEngine(brokers, topic, groupID)
 	consumer := engine.Consumer()

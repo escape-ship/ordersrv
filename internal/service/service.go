@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"database/sql"
+	"log/slog"
 	"time"
 
 	"github.com/escape-ship/ordersrv/internal/infra/sqlc/postgresql"
@@ -47,7 +48,7 @@ func (s *OrderController) InsertOrder(ctx context.Context, req *pb.InsertOrderRe
 		ID:              orderID,
 		UserID:          req.UserId,
 		OrderNumber:     req.OrderNumber,
-		Status:          req.Status,
+		Status:          string(OrderStateReceived),
 		TotalPrice:      req.TotalPrice,
 		Quantity:        req.Quantity,
 		PaymentMethod:   req.PaymentMethod,
@@ -122,10 +123,52 @@ func (s *OrderController) GetAllOrders(ctx context.Context, req *pb.GetAllOrders
 	return &pb.GetAllOrdersResponse{Orders: respOrders}, nil
 }
 
-// // kafka 메시지를 받았을때 order의 status를 변경하는 함수
-// func (s *OrderController) UpdateOrderStatus(ctx context.Context, orderID string) (*pb.UpdateOrderStatusResponse, error) {
+// kafka 메시지를 받았을때 order의 status를 변경하는 함수
+func (s *OrderController) UpdateOrderStatus(ctx context.Context, orderID string, status OrderStatus) error {
+	db := s.pg.GetDB()
+	querier := postgresql.New(db)
 
-// }
+	tx, err := db.Begin()
+	if err != nil {
+		return err
+	}
+	qtx := querier.WithTx(tx)
+	defer func() {
+		if err != nil {
+			tx.Rollback()
+		} else {
+			tx.Commit()
+		}
+	}()
+
+	orderUUID, err := uuid.Parse(orderID)
+	if err != nil {
+		return err
+	}
+
+	err = qtx.UpdateOrderStatus(ctx, postgresql.UpdateOrderStatusParams{
+		ID:     orderUUID,
+		Status: string(status),
+	})
+	if err != nil {
+		return err
+	}
+
+	// Kafka 메시지 전송
+	if s.kafka != nil {
+		producer := s.kafka.Producer()
+		if producer != nil {
+			msgValue := []byte(orderID)
+			err := producer.Publish(ctx, []byte("inventory-discount"), msgValue)
+			if err != nil {
+				slog.Error("Failed to publish kafka message", "error", err)
+			}
+			slog.Info("Published kakao-approve message to Kafka", "order_id", orderID)
+		}
+	}
+
+	return nil
+}
 
 func parseNullTime(s string) sql.NullTime {
 	if s == "" {

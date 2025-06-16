@@ -250,7 +250,6 @@ type InsertOrderRequest struct {
 	state           protoimpl.MessageState    `protogen:"open.v1"`
 	UserId          int64                     `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	OrderNumber     string                    `protobuf:"bytes,2,opt,name=order_number,json=orderNumber,proto3" json:"order_number,omitempty"`
-	Status          string                    `protobuf:"bytes,3,opt,name=status,proto3" json:"status,omitempty"`
 	TotalPrice      int64                     `protobuf:"varint,4,opt,name=total_price,json=totalPrice,proto3" json:"total_price,omitempty"`
 	Quantity        int32                     `protobuf:"varint,5,opt,name=quantity,proto3" json:"quantity,omitempty"`
 	PaymentMethod   string                    `protobuf:"bytes,6,opt,name=payment_method,json=paymentMethod,proto3" json:"payment_method,omitempty"`
@@ -303,13 +302,6 @@ func (x *InsertOrderRequest) GetUserId() int64 {
 func (x *InsertOrderRequest) GetOrderNumber() string {
 	if x != nil {
 		return x.OrderNumber
-	}
-	return ""
-}
-
-func (x *InsertOrderRequest) GetStatus() string {
-	if x != nil {
-		return x.Status
 	}
 	return ""
 }
@@ -591,11 +583,10 @@ const file_order_proto_rawDesc = "" +
 	"product_id\x18\x03 \x01(\tR\tproductId\x12!\n" +
 	"\fproduct_name\x18\x04 \x01(\tR\vproductName\x12#\n" +
 	"\rproduct_price\x18\x05 \x01(\x03R\fproductPrice\x12\x1a\n" +
-	"\bquantity\x18\x06 \x01(\x05R\bquantity\"\x94\x03\n" +
+	"\bquantity\x18\x06 \x01(\x05R\bquantity\"\xfc\x02\n" +
 	"\x12InsertOrderRequest\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\x03R\x06userId\x12!\n" +
-	"\forder_number\x18\x02 \x01(\tR\vorderNumber\x12\x16\n" +
-	"\x06status\x18\x03 \x01(\tR\x06status\x12\x1f\n" +
+	"\forder_number\x18\x02 \x01(\tR\vorderNumber\x12\x1f\n" +
 	"\vtotal_price\x18\x04 \x01(\x03R\n" +
 	"totalPrice\x12\x1a\n" +
 	"\bquantity\x18\x05 \x01(\x05R\bquantity\x12%\n" +

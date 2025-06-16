@@ -33,7 +33,6 @@ message OrderItem {
 message InsertOrderRequest {
     int64 user_id = 1;
     string order_number = 2;
-    string status = 3;
     int64 total_price = 4;
     int32 quantity = 5;
     string payment_method = 6;

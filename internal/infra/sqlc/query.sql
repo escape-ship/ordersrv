@@ -20,3 +20,9 @@ SELECT * FROM orders.order_items WHERE order_id = $1;
 
 -- name: GetAllOrders :many
 SELECT * FROM orders.order;
+
+-- name: UpdateOrderStatus :exec
+UPDATE orders.order
+SET status = $2,
+    updated_at = NOW()
+WHERE id = $1;
