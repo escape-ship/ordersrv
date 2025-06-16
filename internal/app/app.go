@@ -2,7 +2,6 @@ package app
 
 import (
 	"context"
-	"database/sql"
 	"log"
 	"net"
 	"os"
@@ -13,37 +12,37 @@ import (
 
 	"github.com/escape-ship/ordersrv/internal/service"
 	"github.com/escape-ship/ordersrv/pkg/kafka"
+	"github.com/escape-ship/ordersrv/pkg/postgres"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
 
 type App struct {
-	GRPCServer      *grpc.Server
-	OrderController *service.OrderController
-	KafkaEngine     kafka.Engine
-	KafkaConsumer   kafka.Consumer
-	DB              *sql.DB
-	Listener        net.Listener
+	GRPCServer    *grpc.Server
+	KafkaEngine   kafka.Engine
+	KafkaConsumer kafka.Consumer
+	pg            postgres.DBEngine
+	Listener      net.Listener
 }
 
 // App 생성자
-func NewApp(db *sql.DB, listener net.Listener, orderController *service.OrderController, kafkaEngine kafka.Engine, kafkaConsumer kafka.Consumer) *App {
-	grpcServer := grpc.NewServer()
-	// gRPC 서비스 등록
-	pb.RegisterOrderServiceServer(grpcServer, orderController) // <- main.go에서 이미 등록했다면 주석처리
-	reflection.Register(grpcServer)
+func NewApp(pg postgres.DBEngine, listener net.Listener, kafkaEngine kafka.Engine, kafkaConsumer kafka.Consumer) *App {
 	return &App{
-		GRPCServer:      grpcServer,
-		OrderController: orderController,
-		KafkaEngine:     kafkaEngine,
-		KafkaConsumer:   kafkaConsumer,
-		DB:              db,
-		Listener:        listener,
+		KafkaEngine:   kafkaEngine,
+		KafkaConsumer: kafkaConsumer,
+		pg:            pg,
+		Listener:      listener,
 	}
 }
 
 // App 실행: gRPC 서버와 Kafka consumer를 모두 실행
 func (a *App) Run() {
+	grpcServer := grpc.NewServer()
+	// gRPC 서비스 등록
+	pb.RegisterOrderServiceServer(grpcServer, service.NewOrderController(a.pg, a.KafkaEngine))
+
+	reflection.Register(grpcServer)
+
 	// Kafka 메시지 핸들러
 	handler := func(key, value []byte) {
 		log.Printf("Kafka message received: key=%s, value=%s", string(key), string(value))
