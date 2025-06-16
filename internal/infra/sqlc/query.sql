@@ -26,3 +26,8 @@ UPDATE orders.order
 SET status = $2,
     updated_at = NOW()
 WHERE id = $1;
+
+-- name: GetProductIDsByOrderID :many
+SELECT product_id
+FROM orders.order_items
+WHERE order_id = $1;

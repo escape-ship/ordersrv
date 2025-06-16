@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"log/slog"
 	"time"
 
@@ -146,6 +147,20 @@ func (s *OrderController) UpdateOrderStatus(ctx context.Context, orderID string,
 		return err
 	}
 
+	// 상품 id 불러오기
+	productId, err := qtx.GetProductIDsByOrderID(ctx, orderUUID)
+	if err != nil {
+		return err
+	}
+
+	// Kafka 메시지 생성
+	msgValue, err := json.Marshal(productId)
+	if err != nil {
+		slog.Error("Failed to marshal product IDs", "error", err)
+		return err
+	}
+
+	// 주문 상태 업데이트
 	err = qtx.UpdateOrderStatus(ctx, postgresql.UpdateOrderStatusParams{
 		ID:     orderUUID,
 		Status: string(status),
@@ -158,7 +173,6 @@ func (s *OrderController) UpdateOrderStatus(ctx context.Context, orderID string,
 	if s.kafka != nil {
 		producer := s.kafka.Producer()
 		if producer != nil {
-			msgValue := []byte(orderID)
 			err := producer.Publish(ctx, []byte("inventory-discount"), msgValue)
 			if err != nil {
 				slog.Error("Failed to publish kafka message", "error", err)
