@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net"
 	"os"
@@ -18,21 +19,18 @@ import (
 )
 
 type App struct {
-	GRPCServer    *grpc.Server
 	KafkaEngine   kafka.Engine
 	KafkaConsumer kafka.Consumer
 	pg            postgres.DBEngine
-	Listener      net.Listener
 	OrderService  *service.OrderController
 }
 
 // App 생성자
-func NewApp(pg postgres.DBEngine, listener net.Listener, kafkaEngine kafka.Engine, kafkaConsumer kafka.Consumer) *App {
+func NewApp(pg postgres.DBEngine, kafkaEngine kafka.Engine, kafkaConsumer kafka.Consumer) *App {
 	return &App{
 		KafkaEngine:   kafkaEngine,
 		KafkaConsumer: kafkaConsumer,
 		pg:            pg,
-		Listener:      listener,
 		OrderService:  service.NewOrderController(pg, kafkaEngine),
 	}
 }
@@ -41,7 +39,7 @@ func NewApp(pg postgres.DBEngine, listener net.Listener, kafkaEngine kafka.Engin
 func (a *App) Run() {
 	grpcServer := grpc.NewServer()
 	// gRPC 서비스 등록
-	pb.RegisterOrderServiceServer(grpcServer, service.NewOrderController(a.pg, a.KafkaEngine))
+	pb.RegisterOrderServiceServer(grpcServer, a.OrderService)
 
 	reflection.Register(grpcServer)
 
@@ -61,9 +59,15 @@ func (a *App) Run() {
 		}
 	}
 	go RunKafkaConsumer(a.KafkaConsumer, handler)
+	// Listener 생성
+	lis, err := net.Listen("tcp", ":9093")
+	if err != nil {
+		fmt.Println("failed to listen:", err)
+		return
+	}
 
 	log.Println("gRPC server listening on :9093")
-	if err := a.GRPCServer.Serve(a.Listener); err != nil {
+	if err := grpcServer.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)
 	}
 }
