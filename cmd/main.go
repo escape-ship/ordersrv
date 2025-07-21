@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"log/slog"
-	"net"
 	"os"
 
 	"github.com/escape-ship/ordersrv/config"
@@ -17,12 +16,6 @@ import (
 func main() {
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
 
-	// Listener 생성
-	lis, err := net.Listen("tcp", ":9093")
-	if err != nil {
-		fmt.Println("failed to listen:", err)
-		return
-	}
 	cfg, err := config.New("config.yaml")
 	if err != nil {
 		logger.Error("App: config load error", "error", err)
@@ -42,7 +35,7 @@ func main() {
 	consumer := engine.Consumer()
 
 	// App 인스턴스 생성 및 실행
-	application := app.NewApp(db, lis, engine, consumer)
+	application := app.NewApp(db, engine, consumer)
 	application.Run()
 }
 
