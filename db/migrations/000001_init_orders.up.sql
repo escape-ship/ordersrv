@@ -23,6 +23,7 @@ CREATE TABLE orders.order_items (
     product_id UUID NOT NULL,
     product_name TEXT NOT NULL,
     product_price BIGINT NOT NULL,
+    product_options JSONB,
     quantity INT NOT NULL
 );
 

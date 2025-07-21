@@ -9,6 +9,7 @@ require (
 	github.com/jackc/pgx/v5 v5.7.2
 	github.com/segmentio/kafka-go v0.4.48
 	github.com/spf13/viper v1.20.1
+	github.com/sqlc-dev/pqtype v0.3.0
 	github.com/sqlc-dev/sqlc v1.28.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20250224174004-546df14abb99
 	google.golang.org/grpc v1.70.0

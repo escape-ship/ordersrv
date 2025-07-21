@@ -63,7 +63,7 @@ func (a *App) Run() {
 	go RunKafkaConsumer(a.KafkaConsumer, handler)
 
 	log.Println("gRPC server listening on :9093")
-	if err := a.GRPCServer.Serve(a.Listener); err != nil {
+	if err := grpcServer.Serve(a.Listener); err != nil {
 		log.Fatalf("failed to serve: %v", err)
 	}
 }

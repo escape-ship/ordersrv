@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/sqlc-dev/pqtype"
 )
 
 type OrdersOrder struct {
@@ -27,10 +28,11 @@ type OrdersOrder struct {
 }
 
 type OrdersOrderItem struct {
-	ID           uuid.UUID `json:"id"`
-	OrderID      uuid.UUID `json:"order_id"`
-	ProductID    uuid.UUID `json:"product_id"`
-	ProductName  string    `json:"product_name"`
-	ProductPrice int64     `json:"product_price"`
-	Quantity     int32     `json:"quantity"`
+	ID             uuid.UUID             `json:"id"`
+	OrderID        uuid.UUID             `json:"order_id"`
+	ProductID      uuid.UUID             `json:"product_id"`
+	ProductName    string                `json:"product_name"`
+	ProductPrice   int64                 `json:"product_price"`
+	ProductOptions pqtype.NullRawMessage `json:"product_options"`
+	Quantity       int32                 `json:"quantity"`
 }

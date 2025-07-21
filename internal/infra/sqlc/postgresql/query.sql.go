@@ -53,7 +53,7 @@ func (q *Queries) GetAllOrders(ctx context.Context) ([]OrdersOrder, error) {
 }
 
 const getOrderItems = `-- name: GetOrderItems :many
-SELECT id, order_id, product_id, product_name, product_price, quantity FROM orders.order_items WHERE order_id = $1
+SELECT id, order_id, product_id, product_name, product_price, product_options, quantity FROM orders.order_items WHERE order_id = $1
 `
 
 func (q *Queries) GetOrderItems(ctx context.Context, orderID uuid.UUID) ([]OrdersOrderItem, error) {
@@ -71,6 +71,7 @@ func (q *Queries) GetOrderItems(ctx context.Context, orderID uuid.UUID) ([]Order
 			&i.ProductID,
 			&i.ProductName,
 			&i.ProductPrice,
+			&i.ProductOptions,
 			&i.Quantity,
 		); err != nil {
 			return nil, err
