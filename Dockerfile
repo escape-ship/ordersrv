@@ -15,6 +15,9 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
 # Step 3: Final
 FROM scratch
 
+# OCI image source label for ghcr
+LABEL org.opencontainers.image.source="https://github.com/escape-ship/ordersrv"
+
 # GOPATH for scratch images is /
 COPY --from=builder /app/config.yaml /
 COPY --from=builder /app/db/migrations /db/migrations

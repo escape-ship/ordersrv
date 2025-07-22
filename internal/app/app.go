@@ -60,13 +60,13 @@ func (a *App) Run() {
 	}
 	go RunKafkaConsumer(a.KafkaConsumer, handler)
 	// Listener 생성
-	lis, err := net.Listen("tcp", ":9093")
+	lis, err := net.Listen("tcp", ":8083")
 	if err != nil {
 		fmt.Println("failed to listen:", err)
 		return
 	}
 
-	log.Println("gRPC server listening on :9093")
+	log.Println("gRPC server listening on :8083")
 	if err := grpcServer.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)
 	}

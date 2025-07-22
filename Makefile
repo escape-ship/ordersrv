@@ -13,6 +13,10 @@ build:
 	@$(MAKE) sqlc_gen
 	@${MAKE} build_alone
 
+pushall:
+	@docker build -t ghcr.io/escape-ship/ordersrv:latest .
+	@docker push ghcr.io/escape-ship/ordersrv:latest
+
 build_alone:
 	@go build -tags migrate -o bin/$(shell basename $(PWD)) ./cmd
 

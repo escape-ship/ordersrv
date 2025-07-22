@@ -17,7 +17,7 @@ const (
 	_defaultAttempts = 5
 	_defaultTimeout  = time.Second
 	_migrationPath   = "db/migrations"
-	_dbURL           = "postgres://testuser:testpassword@0.0.0.0:5432/escape?sslmode=disable&x-migrations-table=ordersrv_schema_migrations"
+	_dbURL           = "postgres://testuser:testpassword@postgres:5432/escape?sslmode=disable&x-migrations-table=ordersrv_schema_migrations"
 )
 
 func init() {

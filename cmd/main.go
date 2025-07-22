@@ -28,7 +28,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	brokers := []string{"localhost:9092"}
+	brokers := []string{"kafka:9092"}
 	topic := "payments"
 	groupID := "order-group"
 	engine := kafka.NewEngine(brokers, topic, groupID)
