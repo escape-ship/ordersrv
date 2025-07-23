@@ -1,9 +1,12 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/escape-ship/ordersrv/config"
 	"github.com/escape-ship/ordersrv/internal/app"
@@ -34,9 +37,37 @@ func main() {
 	engine := kafka.NewEngine(brokers, topic, groupID)
 	consumer := engine.Consumer()
 
-	// App 인스턴스 생성 및 실행
+	// App 인스턴스 생성
 	application := app.NewApp(db, engine, consumer)
-	application.Run()
+
+	// Context와 signal handling 설정
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	// 시그널 채널 설정
+	sigChan := make(chan os.Signal, 1)
+	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
+
+	// App 실행 (goroutine으로)
+	go func() {
+		if err := application.Run(ctx); err != nil {
+			logger.Error("App: application run error", "error", err)
+			cancel()
+		}
+	}()
+
+	// 시그널 대기
+	select {
+	case sig := <-sigChan:
+		logger.Info("App: received signal, starting graceful shutdown", "signal", sig)
+	case <-ctx.Done():
+		logger.Info("App: context cancelled, starting graceful shutdown")
+	}
+
+	// Graceful shutdown 실행
+	logger.Info("App: graceful shutdown sequence started")
+	application.Shutdown()
+	logger.Info("App: graceful shutdown completed")
 }
 
 // config.Database 값 사용
