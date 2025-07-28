@@ -9,7 +9,6 @@ build:
 	@echo "Building..."
 	@go mod tidy
 	@go mod download
-	@$(MAKE) proto_gen
 	@$(MAKE) sqlc_gen
 	@${MAKE} build_alone
 

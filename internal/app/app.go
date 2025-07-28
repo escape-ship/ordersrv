@@ -9,7 +9,7 @@ import (
 	"os/signal"
 	"syscall"
 
-	pb "github.com/escape-ship/ordersrv/proto/gen"
+	pb "github.com/escape-ship/protos/gen"
 
 	"github.com/escape-ship/ordersrv/internal/service"
 	"github.com/escape-ship/ordersrv/pkg/kafka"
@@ -43,22 +43,22 @@ func (a *App) Run() {
 
 	reflection.Register(grpcServer)
 
-	// Kafka 메시지 핸들러
-	handler := func(key, value []byte) {
-		log.Printf("Kafka message received: key=%s, value=%s", string(key), string(value))
-		// TODO: 메시지에 따라 비즈니스 로직 실행
-		switch string(key) {
-		case "kakao-approve":
-			// 인벤토리 감소 함수 호출
-			log.Println("Processing kakao-approve message")
-			err := a.OrderService.UpdateOrderStatus(context.Background(), string(value), service.OrderStatePaid)
-			if err != nil {
-				log.Printf("Error updating order status: %v", err)
-			}
-		default:
-		}
-	}
-	go RunKafkaConsumer(a.KafkaConsumer, handler)
+	// // Kafka 메시지 핸들러
+	// handler := func(key, value []byte) {
+	// 	log.Printf("Kafka message received: key=%s, value=%s", string(key), string(value))
+	// 	// TODO: 메시지에 따라 비즈니스 로직 실행
+	// 	switch string(key) {
+	// 	case "kakao-approve":
+	// 		// 인벤토리 감소 함수 호출
+	// 		log.Println("Processing kakao-approve message")
+	// 		err := a.OrderService.UpdateOrderStatus(context.Background(), string(value), service.OrderStatePaid)
+	// 		if err != nil {
+	// 			log.Printf("Error updating order status: %v", err)
+	// 		}
+	// 	default:
+	// 	}
+	// }
+	// go RunKafkaConsumer(a.KafkaConsumer, handler)
 	// Listener 생성
 	lis, err := net.Listen("tcp", ":8083")
 	if err != nil {

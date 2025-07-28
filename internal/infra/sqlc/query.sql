@@ -7,9 +7,9 @@ INSERT INTO orders.order (
 
 -- name: InsertOrderItem :exec
 INSERT INTO orders.order_items (
-    id, order_id, product_id, product_name, product_price, quantity
+    id, order_id, product_id, product_name, product_price, product_options, quantity
 ) VALUES (
-    $1, $2, $3, $4, $5, $6
+    $1, $2, $3, $4, $5, $6, $7
 );
 
 -- name: GetOrderWithItems :one
