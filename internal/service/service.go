@@ -6,11 +6,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"log/slog"
 	"time"
 
 	"github.com/escape-ship/ordersrv/internal/infra/sqlc/postgresql"
-	"github.com/escape-ship/ordersrv/pkg/kafka"
 	"github.com/escape-ship/ordersrv/pkg/postgres"
 	pb "github.com/escape-ship/protos/gen"
 	"github.com/google/uuid"
@@ -19,14 +17,12 @@ import (
 
 type OrderController struct {
 	pb.UnimplementedOrderServiceServer
-	pg    postgres.DBEngine
-	kafka kafka.Engine
+	pg postgres.DBEngine
 }
 
-func NewOrderController(pg postgres.DBEngine, kafkaEngine kafka.Engine) *OrderController {
+func NewOrderController(pg postgres.DBEngine) *OrderController {
 	return &OrderController{
-		pg:    pg,
-		kafka: kafkaEngine,
+		pg: pg,
 	}
 }
 
@@ -174,19 +170,6 @@ func (s *OrderController) UpdateOrderStatus(ctx context.Context, orderID string,
 		return err
 	}
 
-	// 상품 id 불러오기
-	productId, err := qtx.GetProductIDsByOrderID(ctx, orderUUID)
-	if err != nil {
-		return err
-	}
-
-	// Kafka 메시지 생성
-	msgValue, err := json.Marshal(productId)
-	if err != nil {
-		slog.Error("Failed to marshal product IDs", "error", err)
-		return err
-	}
-
 	// 주문 상태 업데이트
 	err = qtx.UpdateOrderStatus(ctx, postgresql.UpdateOrderStatusParams{
 		ID:     orderUUID,
@@ -194,18 +177,6 @@ func (s *OrderController) UpdateOrderStatus(ctx context.Context, orderID string,
 	})
 	if err != nil {
 		return err
-	}
-
-	// Kafka 메시지 전송
-	if s.kafka != nil {
-		producer := s.kafka.Producer()
-		if producer != nil {
-			err := producer.Publish(ctx, []byte("inventory-discount"), msgValue)
-			if err != nil {
-				slog.Error("Failed to publish kafka message", "error", err)
-			}
-			slog.Info("Published kakao-approve message to Kafka", "order_id", orderID)
-		}
 	}
 
 	return nil

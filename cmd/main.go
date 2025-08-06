@@ -10,7 +10,8 @@ import (
 
 	"github.com/escape-ship/ordersrv/config"
 	"github.com/escape-ship/ordersrv/internal/app"
-	"github.com/escape-ship/ordersrv/pkg/kafka"
+	"github.com/escape-ship/ordersrv/internal/kafka"
+	kafkaPkg "github.com/escape-ship/ordersrv/pkg/kafka"
 	"github.com/escape-ship/ordersrv/pkg/postgres"
 
 	_ "github.com/jackc/pgx/v5/stdlib" // pgx 드라이버 등록
@@ -32,13 +33,14 @@ func main() {
 	}
 
 	brokers := []string{"kafka:9092"}
-	topic := "payments"
+	topicMap := map[string]kafkaPkg.MessageHandler{
+		"payment-succeeded": kafka.PaymentSucceededHandler,
+	}
 	groupID := "order-group"
-	engine := kafka.NewEngine(brokers, topic, groupID)
-	consumer := engine.Consumer()
+	consumer := kafkaPkg.NewConsumer(brokers, topicMap, groupID)
 
 	// App 인스턴스 생성
-	application := app.NewApp(db, engine, consumer)
+	application := app.NewApp(db, consumer)
 
 	// Context와 signal handling 설정
 	ctx, cancel := context.WithCancel(context.Background())

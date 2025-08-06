@@ -4,18 +4,14 @@ import (
 	"context"
 )
 
-type Engine interface {
-	Producer() Producer
-	Consumer() Consumer
-	Close() error
-}
-
-type Producer interface {
+type Publisher interface {
 	Publish(ctx context.Context, key, value []byte) error
 	Close() error
 }
 
+type MessageHandler func(ctx context.Context, key, value []byte) error
+
 type Consumer interface {
-	Consume(ctx context.Context) (key, value []byte, err error)
+	Consume(ctx context.Context)
 	Close() error
 }
