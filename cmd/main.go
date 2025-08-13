@@ -10,7 +10,7 @@ import (
 
 	"github.com/escape-ship/ordersrv/config"
 	"github.com/escape-ship/ordersrv/internal/app"
-	"github.com/escape-ship/ordersrv/internal/kafka"
+	"github.com/escape-ship/ordersrv/internal/service"
 	kafkaPkg "github.com/escape-ship/ordersrv/pkg/kafka"
 	"github.com/escape-ship/ordersrv/pkg/postgres"
 
@@ -34,10 +34,10 @@ func main() {
 
 	brokers := []string{"kafka:9092"}
 	topicMap := map[string]kafkaPkg.MessageHandler{
-		"payment-succeeded": kafka.PaymentSucceededHandler,
+		"payment-succeeded": service.PaymentSucceededHandler,
 	}
 	groupID := "order-group"
-	consumer := kafkaPkg.NewConsumer(brokers, topicMap, groupID)
+	consumer := kafkaPkg.NewConsumer(brokers, topicMap, groupID, db)
 
 	// App 인스턴스 생성
 	application := app.NewApp(db, consumer)
