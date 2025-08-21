@@ -4,7 +4,7 @@ app:
   port: 8080
 
 database:
-  host: "0.0.0.0"
+  host: "postgres"  # 또는 PostgreSQL 컨테이너 이름
   port: 5432
   user: "testuser"
   password: "testpassword"
